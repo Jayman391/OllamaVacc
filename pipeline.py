@@ -37,22 +37,22 @@ def generate_few_shot(labeled: pd.DataFrame, unlabeled: pd.DataFrame) -> List[st
 
         # Remove labels containing commas
         text_with_labels = text_with_labels[
-            text_with_labels['Answer.category.labels'].str.contains(',') == False
+            text_with_labels['labels'].str.contains(',') == False
         ]
 
         # Clean labels by removing unwanted characters
-        text_with_labels['Answer.category.labels'] = (
-            text_with_labels['Answer.category.labels']
+        text_with_labels['labels'] = (
+            text_with_labels['labels']
             .str.replace(r'\[|\]|"', '', regex=True)
         )
 
         # Remove rows with "Not about vaccines" label
         text_with_labels = text_with_labels[
-            text_with_labels['Answer.category.labels'] != 'Not about vaccines'
+            text_with_labels['labels'] != 'Not about vaccines'
         ]
 
         # Group by labels
-        grouped = text_with_labels.groupby('Answer.category.labels')
+        grouped = text_with_labels.groupby('labels')
 
         prompts = []
 
@@ -65,7 +65,7 @@ def generate_few_shot(labeled: pd.DataFrame, unlabeled: pd.DataFrame) -> List[st
 
             # Prepare examples for the prompt
             examples = "\n".join(
-                f"  {row['Input.text']} : {row['Answer.category.labels']}" 
+                f"  {row['text']} : {row['labels']}" 
                 for _, row in sample_docs.iterrows()
             )
 
