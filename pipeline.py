@@ -70,7 +70,7 @@ def generate_few_shot(labeled: pd.DataFrame, unlabeled: pd.DataFrame) -> List[st
             )
 
             # Construct the prompt
-            prompt = f"""Your task is to classify the following text as one of the following categories: {', '.join(sample_docs['Answer.category.labels'].unique())}
+            prompt = f"""Your task is to classify the following text as one of the following categories: {', '.join(sample_docs['labels'].unique())}
 Here are several examples of text and their corresponding labels:
 {examples}
 Return the most likely label for this document: <START> {text} <STOP>
