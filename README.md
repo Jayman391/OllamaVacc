@@ -1,0 +1,1 @@
+This project uses Ollama and LLama 3.2 to generate a few shot learning LLM pipeline to label data. Since this pipline uses a three billion parameter model and is concurrently executed across nodes on the VACC this project is a proof of concept that one can rapidly infer the labels for large datasets.
