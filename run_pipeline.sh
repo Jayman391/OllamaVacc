@@ -10,11 +10,9 @@
 
 curl -fsSL https://ollama.com/install.sh | sh
 
-ollama serve
+(ollama serve)
 
-ollama pull llama3.2 
-
-ollama run llama3.2
+(ollama pull llama3.2)
 
 # generate random alphanumeric string
 rand_string() {
