@@ -19,10 +19,12 @@ rand_string() {
     cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 }
 
+randstring=$(rand_string)
+
 mkdir labels
 
 # for each input variable
 for i in $@; do
     # add response to documents array in labels file
-    curl http://localhost:11434/api/chat -d | jq '.response' >> labels/$(rand_string).json
+    curl http://localhost:11434/api/chat -d | jq '.response' >> labels/$(randstring).json
 done
