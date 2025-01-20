@@ -110,6 +110,21 @@ def run_ollama_batch(requests: List[str]):
         logger.error(f"Error running Ollama batch: {e}")
         raise
 
+class CustomThread(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}, verbose=None):
+        # Initializing the Thread class
+        super().__init__(group, target, name, args, kwargs)
+        self._return = None
+
+    # Overriding the Thread.run function
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self):
+        super().join()
+        return self._return
+
 def main():
     """Main function to orchestrate the pipeline with concurrent batch processing."""
     try:
@@ -125,8 +140,11 @@ def main():
             labeled_batch = labeled.loc[0 + i * batch_size:batch_size + i * batch_size]
             unlabeled_batch = unlabeled.loc[0 + i * batch_size:batch_size + i * batch_size]
 
-            few_shot_prompts = threading.Thread(target = generate_few_shot, args=(labeled_batch, unlabeled_batch))
-            few_shot_prompts.start()
+            thread = CustomThread(target = generate_few_shot, args=(labeled_batch, unlabeled_batch))
+            thread.start()
+
+            few_shot_prompts = thread.join()
+
             ollama_requests = generate_ollama_requests(few_shot_prompts)
             run_ollama_batch(ollama_requests)
 
