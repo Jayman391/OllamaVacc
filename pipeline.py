@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from typing import List
 import subprocess
-import concurrent.futures
+import threading
 
 
 # Setup logging
@@ -115,18 +115,20 @@ def main():
     try:
         logger.info("Starting main pipeline.")
         labeled, unlabeled = load_data()
-        few_shot_prompts = generate_few_shot(labeled, unlabeled)
-        ollama_requests = generate_ollama_requests(few_shot_prompts)
-        batched_requests = batch_ollama_requests(ollama_requests, 100)
+        labeled = labeled.sample(labeled.shape[0])
 
-        # Use ThreadPoolExecutor to handle batches concurrently
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Submit all batches for concurrent execution
-            futures = [executor.submit(run_ollama_batch, batch) for batch in batched_requests]
-            # Optionally, wait for all futures to complete and handle exceptions
-            for future in concurrent.futures.as_completed(futures):
-                # Raise exceptions if any occurred during batch processing
-                future.result()
+        batch_size = 100
+
+        num_batches = len(unlabeled) // batch_size
+
+        for i in range(num_batches):
+            labeled_batch = labeled.loc[0 + i * batch_size:batch_size + i * batch_size]
+            unlabeled_batch = unlabeled.loc[0 + i * batch_size:batch_size + i * batch_size]
+
+            few_shot_prompts = threading.Thread(target = generate_few_shot, args=(labeled_batch, unlabeled_batch))
+            few_shot_prompts.start()
+            ollama_requests = generate_ollama_requests(few_shot_prompts)
+            run_ollama_batch(ollama_requests)
 
         logger.info("Pipeline completed successfully.")
     except Exception as e:
