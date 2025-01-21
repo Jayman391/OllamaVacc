@@ -21,10 +21,8 @@ rand_string() {
 
 randstring=$(rand_string)
 
-mkdir labels
-
 # for each input variable
 for i in $@; do
     # add response to documents array in labels file
-    curl http://localhost:11434/api/chat -d | jq '.response' >> labels/$(randstring).json
+    curl http://localhost:11434/api/chat -d i | jq '.response' >> labels/$(randstring).json
 done

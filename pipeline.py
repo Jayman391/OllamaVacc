@@ -13,6 +13,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+class CustomThread(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}, verbose=None):
+        # Initializing the Thread class
+        super().__init__(group, target, name, args, kwargs)
+        self._return = None
+
+    # Overriding the Thread.run function
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self):
+        super().join()
+        return self._return
+
 def load_data():
     """Load labeled and unlabeled data from CSV files."""
     try:
@@ -96,34 +111,15 @@ def generate_ollama_requests(input_prompts: List[str]) -> List[str]:
         }) for prompt in input_prompts
     ]
 
-def batch_ollama_requests(requests: List[str], batch_size: int = 8) -> List[List[str]]:
-    """Batch the Ollama requests into groups."""
-    logger.info(f"Batching requests with batch size {batch_size}.")
-    return [requests[i:i + batch_size] for i in range(0, len(requests), batch_size)]
 
 def run_ollama_batch(requests: List[str]):
     """Submit batched requests to Ollama via a shell command."""
     logger.info(f"Submitting a batch of size {len(requests)} to Ollama.")
     try:
-        subprocess.run(["sbatch", "run_pipeline.sh", *requests], shell=False)
+        subprocess.run(["sbatch", "run_pipeline.sh", requests], shell=False)
     except Exception as e:
         logger.error(f"Error running Ollama batch: {e}")
         raise
-
-class CustomThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}, verbose=None):
-        # Initializing the Thread class
-        super().__init__(group, target, name, args, kwargs)
-        self._return = None
-
-    # Overriding the Thread.run function
-    def run(self):
-        if self._target is not None:
-            self._return = self._target(*self._args, **self._kwargs)
-
-    def join(self):
-        super().join()
-        return self._return
 
 def main():
     """Main function to orchestrate the pipeline with concurrent batch processing."""
