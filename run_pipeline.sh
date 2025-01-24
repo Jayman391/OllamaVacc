@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --partition=bluemoon
+#SBATCH --partition=general
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --time=5:00:00
@@ -10,21 +10,24 @@
 
 curl -fsSL https://ollama.com/install.sh | sh
 
-ollama serve
+(ollama serve)
 
-ollama pull llama3.2 
+if [ $? -ne 0 ] ; then
+    echo "Bad return"
+    exit 9
+fi
 
-ollama run llama3.2
+(ollama pull llama3.2)
 
 # generate random alphanumeric string
 rand_string() {
     cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 }
 
-mkdir labels
+randstring=$(rand_string)
 
 # for each input variable
 for i in $@; do
     # add response to documents array in labels file
-    curl http://localhost:11434/api/chat -d | jq '.response' >> labels/$(rand_string).json
+    curl http://localhost:11434/api/chat -d "$i" | jq '.response' >> labels/$(randstring).json
 done
