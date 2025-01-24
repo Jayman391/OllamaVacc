@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --partition=bluemoon
+#SBATCH --partition=general
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --time=5:00:00
@@ -11,6 +11,11 @@
 curl -fsSL https://ollama.com/install.sh | sh
 
 (ollama serve)
+
+if [ $? -ne 0 ] ; then
+    echo "Bad return"
+    exit 9
+fi
 
 (ollama pull llama3.2)
 
@@ -24,5 +29,5 @@ randstring=$(rand_string)
 # for each input variable
 for i in $@; do
     # add response to documents array in labels file
-    curl http://localhost:11434/api/chat -d i | jq '.response' >> labels/$(randstring).json
+    curl http://localhost:11434/api/chat -d "$i" | jq '.response' >> labels/$(randstring).json
 done
