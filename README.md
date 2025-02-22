@@ -32,7 +32,7 @@ Clone the repository and install the dependencies:
 ```bash
 git clone https://github.com/Jayman_391/OllamaVacc.git
 cd OllamaVacc
-pip install poetry
+pip install -r requirements.txt
 ```
 
 ### Configuration
