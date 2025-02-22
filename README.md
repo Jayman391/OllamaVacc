@@ -30,9 +30,9 @@ This project is a pipeline to generate LLM requests and send them to an Ollama s
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
-pip install -r requirements.txt
+git clone https://github.com/Jayman_391/OllamaVacc.git
+cd OllamaVacc
+pip install poetry
 ```
 
 ### Configuration
